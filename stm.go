@@ -123,17 +123,25 @@ func (tx *readOnlyTransaction) Write(vb *VBox, value interface{}) {
 	panic("write in a read only transaction")
 }
 
-func Atomic(f func(tx Transaction) interface{}, ro bool) interface{} {
-RETRY:
+func Atomic(f func(tx Transaction)) {
 	var tx Transaction
-	if ro {
-		tx = newReadOnlyTransaction()
-	} else {
-		tx = newRWTransaction()
-	}
-	value := f(tx)
-	if !tx.commit() {
-		goto RETRY
-	}
-	return value
+
+	defer func() {
+		// When a read only transaction tries to write it panics and ends up here.
+		if r := recover(); r != nil {
+		RW:
+			tx = newRWTransaction()
+			f(tx)
+			if !tx.commit() {
+				goto RW
+			}
+			return
+		}
+	}()
+
+	// All transactions start out as read only transactions.
+	// Read only transactions always commit.
+	tx = newReadOnlyTransaction()
+	f(tx)
+	return
 }
