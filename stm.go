@@ -2,54 +2,12 @@ package gvstm
 
 import (
 	"sync"
-	"sync/atomic"
+	"unsafe"
 )
 
 var (
-	globalClock clock
 	commitMutex sync.Mutex
 )
-
-type clock uint64
-
-func (c *clock) updateClock(t uint64) {
-	atomic.StoreUint64((*uint64)(c), t)
-}
-
-func (c *clock) sampleClock() (t uint64) {
-	return atomic.LoadUint64((*uint64)(c))
-}
-
-type VBox struct {
-	body atomic.Value
-}
-
-func NewVBox(initial interface{}) *VBox {
-	body := vBody{initial, 0, nil}
-	vb := &VBox{}
-	vb.body.Store(body)
-	return vb
-}
-
-func (vb *VBox) read(seqNo uint64) interface{} {
-	body := vb.body.Load().(vBody)
-	for body.seqNo > seqNo {
-		body = *body.prev
-	}
-	return body.value
-}
-
-func (vb *VBox) commit(seqNo uint64, value interface{}) {
-	prev := vb.body.Load().(vBody)
-	body := vBody{value, seqNo, &prev}
-	vb.body.Store(body)
-}
-
-type vBody struct {
-	value interface{}
-	seqNo uint64
-	prev *vBody
-}
 
 type Transaction interface {
 	commit() bool
@@ -58,16 +16,16 @@ type Transaction interface {
 }
 
 type rWTransaction struct {
-	readVersion uint64
+	latestRecord *activeTxRecord
 	readSet map[*VBox]struct{}
-	writeSet map[*VBox]interface{}
+	writeSet map[*VBox]*vBody
 }
 
 func newRWTransaction() *rWTransaction {
 	return &rWTransaction{
-		globalClock.sampleClock(),
+		latestTxRec.registerTransaction(),
 		map[*VBox]struct{}{},
-		map[*VBox]interface{}{},
+		map[*VBox]*vBody{},
 	}
 }
 
@@ -75,48 +33,75 @@ func (tx *rWTransaction) commit() bool {
 	if len(tx.writeSet) == 0 {
 		return true
 	}
+
 	commitMutex.Lock()
+	// Validation
 	for vb := range tx.readSet {
-		if vb.body.Load().(vBody).seqNo > tx.readVersion {
+		if vb.body.Load().(*vBody).seqNo > tx.latestRecord.txNumber {
 			commitMutex.Unlock()
 			return false
 		}
 	}
-	writeVersion := globalClock.sampleClock() + 1
-	for vb, value := range tx.writeSet {
-		vb.commit(writeVersion, value)
+
+	// Commit
+	writeVersion := latestTxRec.txNumber + 1
+	bodies := make([]*vBody, len(tx.writeSet))
+	index := 0
+	for vb, body := range tx.writeSet {
+		vb.commit(writeVersion, body)
+		bodies[index] = body
+		index++
 	}
-	globalClock.updateClock(writeVersion)
+	newTxRecord := &activeTxRecord{
+		txNumber:      writeVersion,
+		bodiesToClean: unsafe.Pointer(&bodies),
+		running:       1,
+		next:          nil,
+	}
+	latestTxRec.next = newTxRecord
+	oldTxRecord := latestTxRec
+	latestTxRec = newTxRecord
 	commitMutex.Unlock()
+
+	oldTxRecord.decrementRunning()
+	newTxRecord.decrementRunning()
+
 	return true
 }
 
 func (tx *rWTransaction) Read(vb *VBox) interface{} {
-	if value, ok := tx.writeSet[vb]; ok {
-		return value
+	if body, ok := tx.writeSet[vb]; ok {
+		return body.value
 	}
-	tx.readSet[vb] = struct {}{}
-	return vb.read(tx.readVersion)
+	tx.readSet[vb] = struct{}{}
+	return vb.read(tx.latestRecord.txNumber)
 }
 
 func (tx *rWTransaction) Write(vb *VBox, value interface{}) {
-	tx.writeSet[vb] = value
+	// The sequence number and prev pointer will be set to the correct values at commit time.
+	// The vBody is created here to avoid memory allocation when holding the commit lock.
+	tx.writeSet[vb] = &vBody{
+		value,
+		0,
+		nil,
+	}
 }
 
 type readOnlyTransaction struct {
-	readVersion uint64
+	latestRecord *activeTxRecord
 }
 
 func newReadOnlyTransaction() *readOnlyTransaction {
-	return &readOnlyTransaction{globalClock.sampleClock()}
+	return &readOnlyTransaction{latestTxRec.registerTransaction()}
 }
 
 func (tx *readOnlyTransaction) commit() bool {
+	tx.latestRecord.decrementRunning()
 	return true
 }
 
 func (tx *readOnlyTransaction) Read(vb *VBox) interface{} {
-	return vb.read(tx.readVersion)
+	return vb.read(tx.latestRecord.txNumber)
 }
 
 func (tx *readOnlyTransaction) Write(vb *VBox, value interface{}) {
@@ -124,15 +109,17 @@ func (tx *readOnlyTransaction) Write(vb *VBox, value interface{}) {
 }
 
 func Atomic(f func(tx Transaction)) {
-	var tx Transaction
+	var readTx *readOnlyTransaction
 
 	defer func() {
 		// When a read only transaction tries to write it panics and ends up here.
 		if r := recover(); r != nil {
+			readTx.latestRecord.decrementRunning()
 		RW:
-			tx = newRWTransaction()
-			f(tx)
-			if !tx.commit() {
+			rwTx := newRWTransaction()
+			f(rwTx)
+			if !rwTx.commit() {
+				rwTx.latestRecord.decrementRunning()
 				goto RW
 			}
 			return
@@ -141,7 +128,8 @@ func Atomic(f func(tx Transaction)) {
 
 	// All transactions start out as read only transactions.
 	// Read only transactions always commit.
-	tx = newReadOnlyTransaction()
-	f(tx)
+	readTx = newReadOnlyTransaction()
+	f(readTx)
+	readTx.commit()
 	return
 }
