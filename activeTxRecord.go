@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	latestTxRec *activeTxRecord = &activeTxRecord{
+	latestTxRec = &activeTxRecord{
 		0,
 		unsafe.Pointer(nil),
 		0,
