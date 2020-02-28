@@ -1,6 +1,7 @@
 package gvstm
 
 import (
+	"gvstm/stm"
 	"sync"
 	"unsafe"
 )
@@ -9,23 +10,17 @@ var (
 	commitMutex sync.Mutex
 )
 
-type Transaction interface {
-	commit() bool
-	Read(vb *VBox) interface{}
-	Write(vb *VBox, value interface{})
-}
-
 type rWTransaction struct {
 	latestRecord *activeTxRecord
-	readSet map[*VBox]struct{}
-	writeSet map[*VBox]*vBody
+	readSet map[*vBox]struct{}
+	writeSet map[*vBox]*vBody
 }
 
 func newRWTransaction() *rWTransaction {
 	return &rWTransaction{
 		latestTxRec.registerTransaction(),
-		map[*VBox]struct{}{},
-		map[*VBox]*vBody{},
+		map[*vBox]struct{}{},
+		map[*vBox]*vBody{},
 	}
 }
 
@@ -69,17 +64,19 @@ func (tx *rWTransaction) commit() bool {
 	return true
 }
 
-func (tx *rWTransaction) Read(vb *VBox) interface{} {
+func (tx *rWTransaction) Load(tVar stm.TVar) interface{} {
+	vb := tVar.(*vBox)
 	if body, ok := tx.writeSet[vb]; ok {
 		return body.value
 	}
 	tx.readSet[vb] = struct{}{}
-	return vb.read(tx.latestRecord.txNumber)
+	return vb.load(tx.latestRecord.txNumber)
 }
 
-func (tx *rWTransaction) Write(vb *VBox, value interface{}) {
+func (tx *rWTransaction) Store(tVar stm.TVar, value interface{}) {
 	// The sequence number and prev pointer will be set to the correct values at commit time.
 	// The vBody is created here to avoid memory allocation when holding the commit lock.
+	vb := tVar.(*vBox)
 	tx.writeSet[vb] = &vBody{
 		value,
 		0,
@@ -100,15 +97,16 @@ func (tx *readOnlyTransaction) commit() bool {
 	return true
 }
 
-func (tx *readOnlyTransaction) Read(vb *VBox) interface{} {
-	return vb.read(tx.latestRecord.txNumber)
+func (tx *readOnlyTransaction) Load(tVar stm.TVar) interface{} {
+	vb := tVar.(*vBox)
+	return vb.load(tx.latestRecord.txNumber)
 }
 
-func (tx *readOnlyTransaction) Write(vb *VBox, value interface{}) {
+func (tx *readOnlyTransaction) Store(tVar stm.TVar, value interface{}) {
 	panic("write in a read only transaction")
 }
 
-func Atomic(f func(tx Transaction)) {
+func Atomic(f func(tx stm.Transaction)) {
 	var readTx *readOnlyTransaction
 
 	defer func() {
@@ -127,7 +125,7 @@ func Atomic(f func(tx Transaction)) {
 	}()
 
 	// All transactions start out as read only transactions.
-	// Read only transactions always commit.
+	// Load only transactions always commit.
 	readTx = newReadOnlyTransaction()
 	f(readTx)
 	readTx.commit()

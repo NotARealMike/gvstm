@@ -1,16 +1,16 @@
 package gvstm
 
-type VBox struct {
+type vBox struct {
 	body *vBody
 }
 
-func NewVBox(initial interface{}) *VBox {
-	vb := &VBox{}
+func newVBox(initial interface{}) *vBox {
+	vb := &vBox{}
 	vb.body = &vBody{initial, 0, nil}
 	return vb
 }
 
-func (vb *VBox) read(seqNo uint64) interface{} {
+func (vb *vBox) load(seqNo uint64) interface{} {
 	body := vb.body
 	for body.seqNo > seqNo {
 		body = body.prev
@@ -18,7 +18,7 @@ func (vb *VBox) read(seqNo uint64) interface{} {
 	return body.value
 }
 
-func (vb *VBox) commit(seqNo uint64, body *vBody) {
+func (vb *vBox) commit(seqNo uint64, body *vBody) {
 	prev := vb.body
 	body.prev = prev
 	body.seqNo = seqNo
