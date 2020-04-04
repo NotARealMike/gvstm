@@ -32,7 +32,7 @@ func (tx *rWTransaction) commit() bool {
 	commitMutex.Lock()
 	// Validation
 	for vb := range tx.readSet {
-		if vb.body.seqNo > tx.latestRecord.txNumber {
+		if vb.body.Load().(vBody).seqNo > tx.latestRecord.txNumber {
 			commitMutex.Unlock()
 			return false
 		}
