@@ -6,13 +6,6 @@ import . "gvstm/stm"
 // An implementation of the benchmark must provide correctly synchronised
 // implementations of these interfaces.
 
-// Holds the factory methods used to create the backend data structures.
-type BackendFactory struct {
-	CreateLargeSet func(tx Transaction) LargeSet
-	CreateIndex func(tx Transaction) Index
-	CreateIDPool func(tx Transaction, maxNumberOfIDs int) IDPool
-}
-
 // A pool of ids to generate a unique id for each instance of each
 // type in the benchmark data structures.
 type IDPool interface {
