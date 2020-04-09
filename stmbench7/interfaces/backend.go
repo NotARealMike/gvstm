@@ -9,7 +9,7 @@ import . "gvstm/stm"
 // A pool of ids to generate a unique id for each instance of each
 // type in the benchmark data structures.
 type IDPool interface {
-	GetID(tx Transaction) (int, error)
+	GetID(tx Transaction) (int, *OpFailedError)
 	PutUnusedID(tx Transaction, id int)
 }
 
@@ -24,7 +24,7 @@ type ImmutableCollection interface {
 type Index interface {
 	Get(tx Transaction, key interface{}) interface{}
 	Put(tx Transaction, key interface{}, value interface{})
-	PutIfAbsent(tx Transaction, key interface{}, value interface{})
+	PutIfAbsent(tx Transaction, key interface{}, value interface{}) interface{}
 	Remove(tx Transaction, key interface{}) bool
 	GetRange(tx Transaction, minKey interface{}, maxKey interface{}) []interface{}
 	GetKeys(tx Transaction) []interface{}

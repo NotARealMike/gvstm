@@ -9,7 +9,7 @@ type DesignObjFactory struct {
     CreateConnection func(from, to AtomicPart, typ string, length int) Connection
     CreateBaseAssembly func(tx Transaction, id int, typ string, buildDate int, module Module, superAssembly ComplexAssembly) BaseAssembly
     CreateComplexAssembly func(tx Transaction, id int, typ string, buildDate int, module Module, superAssembly ComplexAssembly) ComplexAssembly
-    CreateCompositePart func(tx Transaction, id int, typ string, buildDate int, module Module, documentation Document) CompositePart
+    CreateCompositePart func(tx Transaction, id int, typ string, buildDate int, documentation Document) CompositePart
     CreateDocument func(tx Transaction, id int, title, text string) Document
     CreateManual func(tx Transaction, id int, title, text string) Manual
     CreateModule func(tx Transaction, id int, typ string, buildDate int, man Manual) Module
