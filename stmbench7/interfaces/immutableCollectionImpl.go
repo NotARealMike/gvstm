@@ -4,7 +4,7 @@ type ImmutableCollectionImpl struct {
     elements []interface{}
 }
 
-func newImmutableCollectionImpl(elements []interface{}) *ImmutableCollectionImpl {
+func NewImmutableCollectionImpl(elements []interface{}) *ImmutableCollectionImpl {
     ic := &ImmutableCollectionImpl{make([]interface{}, len(elements))}
     for i := range elements {
         ic.elements[i] = elements[i]
@@ -26,7 +26,7 @@ func (ic *ImmutableCollectionImpl) Contains(element interface{}) bool {
 }
 
 func (ic *ImmutableCollectionImpl) Clone() ImmutableCollection {
-    return newImmutableCollectionImpl(ic.elements)
+    return NewImmutableCollectionImpl(ic.elements)
 }
 
 func (ic *ImmutableCollectionImpl) ToSlice() []interface{} {

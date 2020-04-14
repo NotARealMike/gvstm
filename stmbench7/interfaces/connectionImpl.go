@@ -6,7 +6,7 @@ type connectionImpl struct {
     from, to AtomicPart
 }
 
-func newConnectionImpl(from, to AtomicPart, typ string, length int) Connection  {
+func NewConnectionImpl(from, to AtomicPart, typ string, length int) Connection  {
     return &connectionImpl{
         typ:    typ,
         length: length,
