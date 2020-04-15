@@ -3,20 +3,21 @@ package gvstm
 import (
     "gvstm/gvstm"
     . "gvstm/stm"
+    . "gvstm/stmbench7/interfaces"
 )
 
-type smallSetImpl struct {
+type largeSetImpl struct {
     set TVar
 }
 
-func newSmallSetImpl(tx Transaction) *smallSetImpl {
-    return &smallSetImpl{
+func newLargeSetImpl(tx Transaction) LargeSet {
+    return &largeSetImpl{
         set : gvstm.CreateTVar([]interface{}{}),
     }
 }
 
-func (s *smallSetImpl) add(tx Transaction, element interface{}) bool {
-    if s.contains(tx, element) {
+func (s *largeSetImpl) Add(tx Transaction, element interface{}) bool {
+    if s.Contains(tx, element) {
         return false
     }
     oldSet := tx.Load(s.set).([]interface{})
@@ -29,8 +30,8 @@ func (s *smallSetImpl) add(tx Transaction, element interface{}) bool {
     return true
 }
 
-func (s *smallSetImpl) remove(tx Transaction, element interface{}) bool {
-    if !s.contains(tx, element) {
+func (s *largeSetImpl) Remove(tx Transaction, element interface{}) bool {
+    if !s.Contains(tx, element) {
         return false
     }
     oldSet := tx.Load(s.set).([]interface{})
@@ -50,7 +51,7 @@ func (s *smallSetImpl) remove(tx Transaction, element interface{}) bool {
     return true
 }
 
-func (s *smallSetImpl) contains(tx Transaction, element interface{}) bool {
+func (s *largeSetImpl) Contains(tx Transaction, element interface{}) bool {
     set := tx.Load(s.set).([]interface{})
     for _, e := range set {
         if e == element {
@@ -60,10 +61,10 @@ func (s *smallSetImpl) contains(tx Transaction, element interface{}) bool {
     return false
 }
 
-func (s *smallSetImpl) size(tx Transaction) int {
+func (s *largeSetImpl) Size(tx Transaction) int {
     return len(tx.Load(s.set).([]interface{}))
 }
 
-func (s *smallSetImpl) toSlice(tx Transaction) []interface{} {
+func (s *largeSetImpl) ToSlice(tx Transaction) []interface{} {
     return tx.Load(s.set).([]interface{})
 }

@@ -14,8 +14,12 @@ var (
         CreateModule:          newModuleImpl,
     }
     beFactory = interfaces.BackendFactory{
-        CreateLargeSet: nil,
-        CreateIndex:    nil,
-        CreateIDPool:   nil,
+        CreateLargeSet: newLargeSetImpl,
+        CreateIndex:    newIndexImpl,
+        CreateIDPool:   newIDPoolImpl,
     }
 )
+
+func SetGVSTMFactories() {
+    interfaces.SetFactories(doFactory, beFactory)
+}
