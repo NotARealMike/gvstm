@@ -6,17 +6,21 @@ import (
     "strconv"
 )
 
-type ManualBuilder struct {
+type manualBuilder interface {
+    createManual(tx Transaction, moduleID int) (Manual, OpFailedError)
+}
+
+type manualBuilderImpl struct {
     idPool IDPool
 }
 
-func NewManualBuilder(tx Transaction) *ManualBuilder {
-    return &ManualBuilder{
+func newManualBuilder(tx Transaction) manualBuilder {
+    return &manualBuilderImpl{
         idPool: beFactory.CreateIDPool(tx, internal.NumModules),
     }
 }
 
-func (mb *ManualBuilder) CreateManual(tx Transaction, moduleID int) (Manual, *OpFailedError) {
+func (mb *manualBuilderImpl) createManual(tx Transaction, moduleID int) (Manual, OpFailedError) {
     manualID, err := mb.idPool.GetID(tx)
     if err != nil {
         return nil, err

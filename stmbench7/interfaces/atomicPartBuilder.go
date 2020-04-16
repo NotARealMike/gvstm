@@ -6,21 +6,26 @@ import (
     "math/rand"
 )
 
-type AtomicPartBuilder struct {
+type atomicPartBuilder interface {
+    createAndRegisterAtomicPart(tx Transaction) (AtomicPart, OpFailedError)
+    unregisterAndRecycleAtomicPart(tx Transaction, part AtomicPart)
+}
+
+type atomicPartBuilderImpl struct {
     idPool IDPool
     partIndex Index
     buildDateIndex Index
 }
 
-func NewAtomicPartBuilder(tx Transaction, partIndex, buildDateIndex Index) *AtomicPartBuilder {
-    return &AtomicPartBuilder{
+func newAtomicPartBuilder(tx Transaction, partIndex, buildDateIndex Index) atomicPartBuilder {
+    return &atomicPartBuilderImpl{
         idPool:         beFactory.CreateIDPool(tx, internal.MaxAtomicParts),
         partIndex:      partIndex,
         buildDateIndex: buildDateIndex,
     }
 }
 
-func (apb *AtomicPartBuilder) CreateAndRegisterAtomicPart(tx Transaction) (AtomicPart, *OpFailedError) {
+func (apb *atomicPartBuilderImpl) createAndRegisterAtomicPart(tx Transaction) (AtomicPart, OpFailedError) {
     id, err := apb.idPool.GetID(tx)
     if err != nil {
         return nil, err
@@ -39,7 +44,7 @@ func (apb *AtomicPartBuilder) CreateAndRegisterAtomicPart(tx Transaction) (Atomi
     return part, nil
 }
 
-func (apb *AtomicPartBuilder) UnregisterAndRecycleAtomicPart(tx Transaction, part AtomicPart) {
+func (apb *atomicPartBuilderImpl) unregisterAndRecycleAtomicPart(tx Transaction, part AtomicPart) {
     id := part.GetId(tx)
     RemoveAtomicPartFromBuildDateIndex(tx, apb.buildDateIndex, part)
     apb.partIndex.Remove(tx, id)

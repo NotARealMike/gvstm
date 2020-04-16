@@ -9,7 +9,7 @@ import . "gvstm/stm"
 // A pool of ids to generate a unique id for each instance of each
 // type in the benchmark data structures.
 type IDPool interface {
-	GetID(tx Transaction) (int, *OpFailedError)
+	GetID(tx Transaction) (int, OpFailedError)
 	PutUnusedID(tx Transaction, id int)
 }
 

@@ -5,27 +5,32 @@ import (
     "gvstm/stmbench7/internal"
 )
 
-type ModuleBuilder struct {
-    idPool IDPool
-    manualBuilder *ManualBuilder
-    assemblyBuilder *AssemblyBuilder
+type moduleBuilder interface {
+    createAndRegisterModule(tx Transaction) (Module, OpFailedError)
+    getAssemblyBuilder() AssemblyBuilder
 }
 
-func NewModuleBuilder(tx Transaction, baseAssemblyIndex, complexAssemblyIndex Index) *ModuleBuilder {
-    return &ModuleBuilder{
+type moduleBuilderImpl struct {
+    idPool IDPool
+    manualBuilder manualBuilder
+    assemblyBuilder AssemblyBuilder
+}
+
+func newModuleBuilder(tx Transaction, baseAssemblyIndex, complexAssemblyIndex Index) moduleBuilder {
+    return &moduleBuilderImpl{
         idPool:          beFactory.CreateIDPool(tx, internal.NumModules),
-        manualBuilder:   NewManualBuilder(tx),
-        assemblyBuilder: NewAssemblyBuilder(tx, baseAssemblyIndex, complexAssemblyIndex),
+        manualBuilder:   newManualBuilder(tx),
+        assemblyBuilder: newAssemblyBuilder(tx, baseAssemblyIndex, complexAssemblyIndex),
     }
 }
 
-func (mb *ModuleBuilder) CreateAndRegisterModule(tx Transaction) (Module, *OpFailedError) {
+func (mb *moduleBuilderImpl) createAndRegisterModule(tx Transaction) (Module, OpFailedError) {
     moduleID, err := mb.idPool.GetID(tx)
     if err != nil {
         return nil, err
     }
 
-    manual, err := mb.manualBuilder.CreateManual(tx, moduleID)
+    manual, err := mb.manualBuilder.createManual(tx, moduleID)
     if err != nil {
         return nil, err
     }
@@ -34,14 +39,14 @@ func (mb *ModuleBuilder) CreateAndRegisterModule(tx Transaction) (Module, *OpFai
     date := createBuildDate(internal.MinModuleDate, internal.MaxModuleDate)
 
     module := doFactory.CreateModule(tx, moduleID, typ, date, manual)
-    designRoot, err := mb.assemblyBuilder.createAndRegisterComplexAssembly(tx, module, nil)
+    designRoot, err := mb.assemblyBuilder.CreateAndRegisterAssembly(tx, module, nil)
     if err != nil {
         return nil, err
     }
-    module.SetDesignRoot(tx, designRoot)
+    module.SetDesignRoot(tx, designRoot.(ComplexAssembly))
     return module, nil
 }
 
-func (mb *ModuleBuilder) GetAssemblyBuilder() *AssemblyBuilder {
+func (mb *moduleBuilderImpl) getAssemblyBuilder() AssemblyBuilder {
     return mb.assemblyBuilder
 }

@@ -23,11 +23,11 @@ func newIDPoolImpl(tx Transaction, maxNumberOfIDs int) IDPool {
     }
 }
 
-func (ip *idPoolImpl) GetID(tx Transaction) (int, *OpFailedError) {
+func (ip *idPoolImpl) GetID(tx Transaction) (int, OpFailedError) {
     pool := tx.Load(ip.pool).([]int)
     head := tx.Load(ip.head).(int)
     if (head + 1) % len(pool) == tx.Load(ip.tail) {
-        return -1, &OpFailedError{Message:"IDPool exhausted"}
+        return -1, NewOpFailedError("IDPool exhausted")
     }
     tx.Store(ip.head, head+1)
     return pool[head], nil

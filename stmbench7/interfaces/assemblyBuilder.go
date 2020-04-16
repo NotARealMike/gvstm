@@ -5,13 +5,18 @@ import (
     "gvstm/stmbench7/internal"
 )
 
-type AssemblyBuilder struct {
+type AssemblyBuilder interface {
+    CreateAndRegisterAssembly(tx Transaction, module Module, superAssembly ComplexAssembly) (Assembly, OpFailedError)
+    UnregisterAndRecycleAssembly(tx Transaction, assembly Assembly)
+}
+
+type assemblyBuilderImpl struct {
     baseAssemblyIDPool, complexAssemblyIDPool IDPool
     baseAssemblyIndex, complexAssemblyIndex Index
 }
 
-func NewAssemblyBuilder(tx Transaction, baseAssemblyIndex, complexAssemblyIndex Index) *AssemblyBuilder {
-    return &AssemblyBuilder{
+func newAssemblyBuilder(tx Transaction, baseAssemblyIndex, complexAssemblyIndex Index) AssemblyBuilder {
+    return &assemblyBuilderImpl{
         baseAssemblyIDPool:    beFactory.CreateIDPool(tx, internal.MaxBaseAssemblies),
         complexAssemblyIDPool: beFactory.CreateIDPool(tx, internal.MaxComplexAssemblies),
         baseAssemblyIndex:     baseAssemblyIndex,
@@ -19,14 +24,14 @@ func NewAssemblyBuilder(tx Transaction, baseAssemblyIndex, complexAssemblyIndex 
     }
 }
 
-func (ab *AssemblyBuilder) CreateAndRegisterAssembly(tx Transaction, module Module, superAssembly ComplexAssembly) (Assembly, *OpFailedError) {
+func (ab *assemblyBuilderImpl) CreateAndRegisterAssembly(tx Transaction, module Module, superAssembly ComplexAssembly) (Assembly, OpFailedError) {
     if superAssembly == nil || superAssembly.GetLevel(tx) > 2 {
         return ab.createAndRegisterComplexAssembly(tx, module, superAssembly)
     }
     return ab.createAndRegisterBaseAssembly(tx, module, superAssembly)
 }
 
-func (ab *AssemblyBuilder) UnregisterAndRecycleAssembly(tx Transaction, assembly Assembly) {
+func (ab *assemblyBuilderImpl) UnregisterAndRecycleAssembly(tx Transaction, assembly Assembly) {
     switch t := assembly.(type) {
     case BaseAssembly :
         ab.unregisterAndRecycleBaseAssembly(tx, t)
@@ -35,7 +40,7 @@ func (ab *AssemblyBuilder) UnregisterAndRecycleAssembly(tx Transaction, assembly
     }
 }
 
-func (ab *AssemblyBuilder) createAndRegisterBaseAssembly(tx Transaction, module Module, superAssembly ComplexAssembly) (BaseAssembly, *OpFailedError) {
+func (ab *assemblyBuilderImpl) createAndRegisterBaseAssembly(tx Transaction, module Module, superAssembly ComplexAssembly) (BaseAssembly, OpFailedError) {
     id, err := ab.baseAssemblyIDPool.GetID(tx)
     if err != nil {
         return nil, err
@@ -49,7 +54,7 @@ func (ab *AssemblyBuilder) createAndRegisterBaseAssembly(tx Transaction, module 
     return baseAssembly, nil
 }
 
-func (ab *AssemblyBuilder) createAndRegisterComplexAssembly(tx Transaction, module Module, superAssembly ComplexAssembly) (ComplexAssembly, *OpFailedError) {
+func (ab *assemblyBuilderImpl) createAndRegisterComplexAssembly(tx Transaction, module Module, superAssembly ComplexAssembly) (ComplexAssembly, OpFailedError) {
     id, err := ab.complexAssemblyIDPool.GetID(tx)
     if err != nil {
         return nil, err
@@ -77,7 +82,7 @@ func (ab *AssemblyBuilder) createAndRegisterComplexAssembly(tx Transaction, modu
     return complexAssembly, nil
 }
 
-func (ab *AssemblyBuilder) unregisterAndRecycleBaseAssembly(tx Transaction, assembly BaseAssembly) {
+func (ab *assemblyBuilderImpl) unregisterAndRecycleBaseAssembly(tx Transaction, assembly BaseAssembly) {
     assemblyID := assembly.GetId(tx)
     ab.baseAssemblyIndex.Remove(tx, assemblyID)
 
@@ -92,7 +97,7 @@ func (ab *AssemblyBuilder) unregisterAndRecycleBaseAssembly(tx Transaction, asse
     ab.baseAssemblyIDPool.PutUnusedID(tx, assembly.GetId(tx))
 }
 
-func (ab *AssemblyBuilder) unregisterAndRecycleComplexAssembly(tx Transaction, assembly ComplexAssembly) {
+func (ab *assemblyBuilderImpl) unregisterAndRecycleComplexAssembly(tx Transaction, assembly ComplexAssembly) {
     currentLevel := assembly.GetLevel(tx)
     superAssembly := assembly.GetSuperAssembly(tx)
 

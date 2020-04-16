@@ -10,6 +10,7 @@ var (
     NumCompPartsPerModule = 500
     NumSubAssemblies  = 3
     NumAssemblyLevels = 7
+    NumCompPartPerAss = 3
     NumModules = 1
 
     MinModuleDate = 1000

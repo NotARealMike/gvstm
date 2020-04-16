@@ -6,23 +6,28 @@ import (
     "math/rand"
 )
 
-type CompositePartBuilder struct {
-    idPool IDPool
-    compositePartIndex Index
-    documentBuilder *DocumentBuilder
-    atomicPartBuilder *AtomicPartBuilder
+type CompositePartBuilder interface {
+    CreateAndRegisterCompositePart(tx Transaction) (CompositePart, OpFailedError)
+    UnregisterAndRecycleCompositePart(tx Transaction, compositePart CompositePart)
 }
 
-func NewCompositePartBuilder(tx Transaction, compositePartIndex, documentIndex, atomicPartIndex, buildDateIndex Index) *CompositePartBuilder {
-    return &CompositePartBuilder{
+type compositePartBuilderImpl struct {
+    idPool IDPool
+    compositePartIndex Index
+    documentBuilder    documentBuilder
+    atomicPartBuilder  atomicPartBuilder
+}
+
+func newCompositePartBuilder(tx Transaction, compositePartIndex, documentIndex, atomicPartIndex, buildDateIndex Index) CompositePartBuilder {
+    return &compositePartBuilderImpl{
         idPool:             beFactory.CreateIDPool(tx, internal.MaxCompParts),
         compositePartIndex: compositePartIndex,
-        documentBuilder:    NewDocumentBuilder(tx, documentIndex),
-        atomicPartBuilder:  NewAtomicPartBuilder(tx, atomicPartIndex, buildDateIndex),
+        documentBuilder:    newDocumentBuilder(tx, documentIndex),
+        atomicPartBuilder:  newAtomicPartBuilder(tx, atomicPartIndex, buildDateIndex),
     }
 }
 
-func (cpb *CompositePartBuilder) CreateAndRegisterCompositePart(tx Transaction) (CompositePart, *OpFailedError) {
+func (cpb *compositePartBuilderImpl) CreateAndRegisterCompositePart(tx Transaction) (CompositePart, OpFailedError) {
     id, err := cpb.idPool.GetID(tx)
     if err != nil {
         return nil, err
@@ -36,24 +41,24 @@ func (cpb *CompositePartBuilder) CreateAndRegisterCompositePart(tx Transaction) 
         date = createBuildDate(internal.MinOldCompositePartDate, internal.MaxOldCompositePartDate)
     }
 
-    document, err := cpb.documentBuilder.CreateAndRegisterDocument(tx, id)
+    document, err := cpb.documentBuilder.createAndRegisterDocument(tx, id)
     if err != nil {
         return nil, err
     }
 
     parts := make([]AtomicPart, internal.NumAtomsPerCompPart)
     for i := range parts {
-        part, err := cpb.atomicPartBuilder.CreateAndRegisterAtomicPart(tx)
+        part, err := cpb.atomicPartBuilder.createAndRegisterAtomicPart(tx)
         if err == nil {
             parts[i] = part
             continue
         }
         // If creating an atomic part caused an error then we must unregister the
         // document and all atomic parts previously created.
-        cpb.documentBuilder.UnregisterAndRecycleDocument(tx, document)
+        cpb.documentBuilder.unregisterAndRecycleDocument(tx, document)
         for j := range parts {
             if parts[j] != nil {
-                cpb.atomicPartBuilder.UnregisterAndRecycleAtomicPart(tx, parts[j])
+                cpb.atomicPartBuilder.unregisterAndRecycleAtomicPart(tx, parts[j])
             }
         }
         cpb.idPool.PutUnusedID(tx, id)
@@ -69,14 +74,14 @@ func (cpb *CompositePartBuilder) CreateAndRegisterCompositePart(tx Transaction) 
     return compositePart, nil
 }
 
-func (cpb *CompositePartBuilder) UnregisterAndRecycleCompositePart(tx Transaction, compositePart CompositePart) {
+func (cpb *compositePartBuilderImpl) UnregisterAndRecycleCompositePart(tx Transaction, compositePart CompositePart) {
     id := compositePart.GetId(tx)
     cpb.compositePartIndex.Remove(tx, id)
 
-    cpb.documentBuilder.UnregisterAndRecycleDocument(tx, compositePart.GetDocumentation(tx))
+    cpb.documentBuilder.unregisterAndRecycleDocument(tx, compositePart.GetDocumentation(tx))
 
     for _, part := range compositePart.GetParts(tx).ToSlice(tx) {
-        cpb.atomicPartBuilder.UnregisterAndRecycleAtomicPart(tx, part.(AtomicPart))
+        cpb.atomicPartBuilder.unregisterAndRecycleAtomicPart(tx, part.(AtomicPart))
     }
 
     for _, owner := range compositePart.GetUsedIn(tx).ToSlice() {
@@ -88,7 +93,7 @@ func (cpb *CompositePartBuilder) UnregisterAndRecycleCompositePart(tx Transactio
     cpb.idPool.PutUnusedID(tx, id)
 }
 
-func (cpb *CompositePartBuilder) createConnections(tx Transaction, parts []AtomicPart) {
+func (cpb *compositePartBuilderImpl) createConnections(tx Transaction, parts []AtomicPart) {
     // First, make all atomic parts be connected in a ring
     // (so that the resulting graph is fully connected)
     for i := 0; i < internal.NumAtomsPerCompPart; i++ {

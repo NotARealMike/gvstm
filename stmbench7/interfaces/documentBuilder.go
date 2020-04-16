@@ -6,19 +6,24 @@ import (
     "strconv"
 )
 
-type DocumentBuilder struct {
+type documentBuilder interface {
+    createAndRegisterDocument(tx Transaction, compositePartID int) (Document, OpFailedError)
+    unregisterAndRecycleDocument(tx Transaction, document Document)
+}
+
+type documentBuilderImpl struct {
     idPool IDPool
     documentTitleIndex Index
 }
 
-func NewDocumentBuilder(tx Transaction, documentTitleIndex Index) *DocumentBuilder {
-    return &DocumentBuilder{
+func newDocumentBuilder(tx Transaction, documentTitleIndex Index) documentBuilder {
+    return &documentBuilderImpl{
         idPool:             beFactory.CreateIDPool(tx, internal.MaxCompParts),
         documentTitleIndex: documentTitleIndex,
     }
 }
 
-func (db *DocumentBuilder) CreateAndRegisterDocument(tx Transaction, compositePartID int) (Document, *OpFailedError) {
+func (db *documentBuilderImpl) createAndRegisterDocument(tx Transaction, compositePartID int) (Document, OpFailedError) {
     id, err := db.idPool.GetID(tx)
     if err != nil {
         return nil, err
@@ -30,7 +35,7 @@ func (db *DocumentBuilder) CreateAndRegisterDocument(tx Transaction, compositePa
     return document, nil
 }
 
-func (db *DocumentBuilder) UnregisterAndRecycleDocument(tx Transaction, document Document) {
+func (db *documentBuilderImpl) unregisterAndRecycleDocument(tx Transaction, document Document) {
     document.SetPart(tx, nil)
     db.documentTitleIndex.Remove(tx, document.GetTitle(tx))
     db.idPool.PutUnusedID(tx, document.GetDocumentId(tx))
