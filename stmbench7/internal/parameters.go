@@ -7,7 +7,7 @@ var (
     NumConnectionsPerAtomicPart = 6
     DocumentSize = 20000
     ManualSize = 1000000
-    NumCompPartsPerModule = 500
+    NumCompPartsPerModule = 50//500
     NumSubAssemblies  = 3
     NumAssemblyLevels = 7
     NumCompPartPerAss = 3
@@ -25,6 +25,7 @@ var (
     MaxYoungCompositePartDate = 2999
     YoungCompositePartFraction = 10
     NumTypes = 10
+    XYRange = 100000
 
     InitialTotalCompParts = NumModules * NumCompPartsPerModule
     InitialTotalBaseAssemblies = int(math.Pow(float64(NumSubAssemblies), float64(NumAssemblyLevels-1)))

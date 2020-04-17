@@ -18,7 +18,7 @@ type documentBuilderImpl struct {
 
 func newDocumentBuilder(tx Transaction, documentTitleIndex Index) documentBuilder {
     return &documentBuilderImpl{
-        idPool:             beFactory.CreateIDPool(tx, internal.MaxCompParts),
+        idPool:             BEFactory.CreateIDPool(tx, internal.MaxCompParts),
         documentTitleIndex: documentTitleIndex,
     }
 }
@@ -30,7 +30,7 @@ func (db *documentBuilderImpl) createAndRegisterDocument(tx Transaction, composi
     }
     title := "Composite Part #" + strconv.Itoa(compositePartID)
     text := createText(internal.DocumentSize, "I am the documentation for composite part #" + strconv.Itoa(compositePartID) + "\n")
-    document := doFactory.CreateDocument(tx, id, title, text)
+    document := DOFactory.CreateDocument(tx, id, title, text)
     db.documentTitleIndex.Put(tx, title, document)
     return document, nil
 }

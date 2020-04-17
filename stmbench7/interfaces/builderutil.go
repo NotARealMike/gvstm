@@ -9,11 +9,11 @@ import (
 )
 
 func AddAtomicPartToBuildDateIndex(tx Transaction, index Index, part AtomicPart) {
-    newSet := beFactory.CreateLargeSet(tx)
+    newSet := BEFactory.CreateLargeSet(tx)
     newSet.Add(tx, part)
-    oldSet := index.PutIfAbsent(tx, part.GetBuildDate(tx), newSet).(LargeSet)
+    oldSet := index.PutIfAbsent(tx, part.GetBuildDate(tx), newSet)
     if oldSet != nil {
-        oldSet.Add(tx, part)
+        oldSet.(LargeSet).Add(tx, part)
     }
 }
 

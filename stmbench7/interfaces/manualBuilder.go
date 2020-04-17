@@ -16,7 +16,7 @@ type manualBuilderImpl struct {
 
 func newManualBuilder(tx Transaction) manualBuilder {
     return &manualBuilderImpl{
-        idPool: beFactory.CreateIDPool(tx, internal.NumModules),
+        idPool: BEFactory.CreateIDPool(tx, internal.NumModules),
     }
 }
 
@@ -27,5 +27,5 @@ func (mb *manualBuilderImpl) createManual(tx Transaction, moduleID int) (Manual,
     }
     title := "Manual for module #" + strconv.Itoa(moduleID)
     text := createText(internal.ManualSize, "I am the manual for module #" + strconv.Itoa(moduleID) + "\n")
-    return doFactory.CreateManual(tx, manualID, title, text), nil
+    return DOFactory.CreateManual(tx, manualID, title, text), nil
 }

@@ -20,7 +20,7 @@ type compositePartBuilderImpl struct {
 
 func newCompositePartBuilder(tx Transaction, compositePartIndex, documentIndex, atomicPartIndex, buildDateIndex Index) CompositePartBuilder {
     return &compositePartBuilderImpl{
-        idPool:             beFactory.CreateIDPool(tx, internal.MaxCompParts),
+        idPool:             BEFactory.CreateIDPool(tx, internal.MaxCompParts),
         compositePartIndex: compositePartIndex,
         documentBuilder:    newDocumentBuilder(tx, documentIndex),
         atomicPartBuilder:  newAtomicPartBuilder(tx, atomicPartIndex, buildDateIndex),
@@ -66,7 +66,7 @@ func (cpb *compositePartBuilderImpl) CreateAndRegisterCompositePart(tx Transacti
     }
 
     cpb.createConnections(tx, parts)
-    compositePart := doFactory.CreateCompositePart(tx, id, typ, date, document)
+    compositePart := DOFactory.CreateCompositePart(tx, id, typ, date, document)
     for _, part := range parts {
         compositePart.AddPart(tx, part)
     }
@@ -99,7 +99,7 @@ func (cpb *compositePartBuilderImpl) createConnections(tx Transaction, parts []A
     for i := 0; i < internal.NumAtomsPerCompPart; i++ {
         dest := (i + 1) % internal.NumAtomsPerCompPart
         // TODO: The java version uses ThreadRandom and a parameter for the RNG.
-        parts[i].ConnectTo(tx, parts[dest], createType(), rand.Int())
+        parts[i].ConnectTo(tx, parts[dest], createType(), rand.Intn(internal.XYRange))
     }
 
     // Then add other connections randomly, taking into account
@@ -109,8 +109,8 @@ func (cpb *compositePartBuilderImpl) createConnections(tx Transaction, parts []A
         part := parts[i]
         for part.GetNumToConnections(tx) < internal.NumConnectionsPerAtomicPart {
             // TODO: The java version uses ThreadRandom and a parameter for the RNG.
-            dest := rand.Int()
-            parts[i].ConnectTo(tx, parts[dest], createType(), rand.Int())
+            dest := rand.Intn(internal.NumAtomsPerCompPart)
+            parts[i].ConnectTo(tx, parts[dest], createType(), rand.Intn(internal.XYRange))
         }
     }
 }

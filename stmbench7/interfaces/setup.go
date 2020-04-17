@@ -79,12 +79,12 @@ func (s *setupImpl) modBuilder() moduleBuilder {
 func NewSetup(tx Transaction) Setup {
     s := &setupImpl{
         module:                   nil,
-        atomicPartIDIndex:        beFactory.CreateIndex(tx),
-        atomicPartBuildDateIndex: beFactory.CreateIndex(tx),
-        compositePartIDIndex:     beFactory.CreateIndex(tx),
-        baseAssemblyIDIndex:      beFactory.CreateIndex(tx),
-        complexAssemblyIDIndex:   beFactory.CreateIndex(tx),
-        documentTitleIndex:       beFactory.CreateIndex(tx),
+        atomicPartIDIndex:        BEFactory.CreateIndex(tx),
+        atomicPartBuildDateIndex: BEFactory.CreateIndex(tx),
+        compositePartIDIndex:     BEFactory.CreateIndex(tx),
+        baseAssemblyIDIndex:      BEFactory.CreateIndex(tx),
+        complexAssemblyIDIndex:   BEFactory.CreateIndex(tx),
+        documentTitleIndex:       BEFactory.CreateIndex(tx),
         compositePartBuilder:     nil,
         moduleBuilder:            nil,
     }

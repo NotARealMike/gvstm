@@ -19,12 +19,12 @@ func newBaseAssemblyImpl(tx Transaction, id int, typ string, buildDate int, modu
 }
 
 func (ba *baseAssemblyImpl) AddComponent(tx Transaction, component CompositePart) {
-    tx.Load(ba.components).(bagImpl).add(tx, component)
+    tx.Load(ba.components).(bag).add(tx, component)
     component.AddAssembly(tx, ba)
 }
 
 func (ba *baseAssemblyImpl) RemoveComponent(tx Transaction, component CompositePart) bool {
-    exists := tx.Load(ba.components).(bagImpl).remove(tx, component)
+    exists := tx.Load(ba.components).(bag).remove(tx, component)
     if !exists {
         return false
     }
@@ -33,7 +33,7 @@ func (ba *baseAssemblyImpl) RemoveComponent(tx Transaction, component CompositeP
 }
 
 func (ba *baseAssemblyImpl) GetComponents(tx Transaction) ImmutableCollection {
-    return NewImmutableCollectionImpl(tx.Load(ba.components).(bagImpl).toSlice(tx))
+    return NewImmutableCollectionImpl(tx.Load(ba.components).(bag).toSlice(tx))
 }
 
 func (ba *baseAssemblyImpl) ClearPointer(tx Transaction) {

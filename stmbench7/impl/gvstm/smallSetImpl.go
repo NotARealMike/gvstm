@@ -5,11 +5,19 @@ import (
     . "gvstm/stm"
 )
 
+type smallSet interface {
+    add(tx Transaction, element interface{}) bool
+    remove(tx Transaction, element interface{}) bool
+    contains(tx Transaction, element interface{}) bool
+    size(tx Transaction) int
+    toSlice(tx Transaction) []interface{}
+}
+
 type smallSetImpl struct {
     set TVar
 }
 
-func newSmallSetImpl(tx Transaction) *smallSetImpl {
+func newSmallSetImpl(tx Transaction) smallSet {
     return &smallSetImpl{
         set : gvstm.CreateTVar([]interface{}{}),
     }

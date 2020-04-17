@@ -5,11 +5,17 @@ import (
     . "gvstm/stm"
 )
 
+type bag interface {
+    add(tx Transaction, element interface{})
+    remove(tx Transaction, element interface{}) bool
+    toSlice(tx Transaction) []interface{}
+}
+
 type bagImpl struct {
     list TVar
 }
 
-func newBagImpl(tx Transaction) *bagImpl {
+func newBagImpl(tx Transaction) bag {
     return &bagImpl{
         list : gvstm.CreateTVar([]interface{}{}),
     }

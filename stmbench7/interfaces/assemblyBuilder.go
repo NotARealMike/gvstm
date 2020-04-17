@@ -17,8 +17,8 @@ type assemblyBuilderImpl struct {
 
 func newAssemblyBuilder(tx Transaction, baseAssemblyIndex, complexAssemblyIndex Index) AssemblyBuilder {
     return &assemblyBuilderImpl{
-        baseAssemblyIDPool:    beFactory.CreateIDPool(tx, internal.MaxBaseAssemblies),
-        complexAssemblyIDPool: beFactory.CreateIDPool(tx, internal.MaxComplexAssemblies),
+        baseAssemblyIDPool:    BEFactory.CreateIDPool(tx, internal.MaxBaseAssemblies),
+        complexAssemblyIDPool: BEFactory.CreateIDPool(tx, internal.MaxComplexAssemblies),
         baseAssemblyIndex:     baseAssemblyIndex,
         complexAssemblyIndex:  complexAssemblyIndex,
     }
@@ -47,7 +47,7 @@ func (ab *assemblyBuilderImpl) createAndRegisterBaseAssembly(tx Transaction, mod
     }
 
     date := createBuildDate(internal.MinAssDate, internal.MaxAssDate)
-    baseAssembly := doFactory.CreateBaseAssembly(tx, id, createType(), date, module, superAssembly)
+    baseAssembly := DOFactory.CreateBaseAssembly(tx, id, createType(), date, module, superAssembly)
 
     ab.baseAssemblyIndex.Put(tx, id, baseAssembly)
     superAssembly.AddSubAssembly(tx, baseAssembly)
@@ -61,7 +61,7 @@ func (ab *assemblyBuilderImpl) createAndRegisterComplexAssembly(tx Transaction, 
     }
 
     date := createBuildDate(internal.MinAssDate, internal.MaxAssDate)
-    complexAssembly := doFactory.CreateComplexAssembly(tx, id, createType(), date, module, superAssembly)
+    complexAssembly := DOFactory.CreateComplexAssembly(tx, id, createType(), date, module, superAssembly)
 
     for i := 0; i < internal.NumSubAssemblies; i++ {
         _, err := ab.CreateAndRegisterAssembly(tx, module, complexAssembly)

@@ -19,7 +19,7 @@ type atomicPartBuilderImpl struct {
 
 func newAtomicPartBuilder(tx Transaction, partIndex, buildDateIndex Index) atomicPartBuilder {
     return &atomicPartBuilderImpl{
-        idPool:         beFactory.CreateIDPool(tx, internal.MaxAtomicParts),
+        idPool:         BEFactory.CreateIDPool(tx, internal.MaxAtomicParts),
         partIndex:      partIndex,
         buildDateIndex: buildDateIndex,
     }
@@ -37,7 +37,7 @@ func (apb *atomicPartBuilderImpl) createAndRegisterAtomicPart(tx Transaction) (A
     x := rand.Int()
     y := x + 1
 
-    part := doFactory.CreateAtomicPart(tx, id, typ, date, x, y)
+    part := DOFactory.CreateAtomicPart(tx, id, typ, date, x, y)
 
     apb.partIndex.Put(tx, id, part)
     AddAtomicPartToBuildDateIndex(tx, apb.buildDateIndex, part)

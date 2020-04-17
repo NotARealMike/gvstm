@@ -27,7 +27,7 @@ func newCompositePartImpl(tx Transaction, id int, typ string, buildDate int, doc
 }
 
 func (cp *compositePartImpl) AddAssembly(tx Transaction, assembly BaseAssembly) {
-    tx.Load(cp.usedIn).(bagImpl).add(tx, assembly)
+    tx.Load(cp.usedIn).(bag).add(tx, assembly)
 }
 
 func (cp *compositePartImpl) AddPart(tx Transaction, part AtomicPart) bool {
@@ -36,7 +36,7 @@ func (cp *compositePartImpl) AddPart(tx Transaction, part AtomicPart) bool {
         return false
     }
     part.SetCompositePart(tx, cp)
-    if tx.Load(cp.rootPart).(AtomicPart) == nil {
+    if tx.Load(cp.rootPart) == nil {
         tx.Store(cp.rootPart, part)
     }
     return true
@@ -59,11 +59,11 @@ func (cp *compositePartImpl) GetParts(tx Transaction) LargeSet {
 }
 
 func (cp *compositePartImpl) RemoveAssembly(tx Transaction, assembly BaseAssembly) {
-    tx.Load(cp.usedIn).(bagImpl).remove(tx, assembly)
+    tx.Load(cp.usedIn).(bag).remove(tx, assembly)
 }
 
 func (cp *compositePartImpl) GetUsedIn(tx Transaction) ImmutableCollection {
-    return NewImmutableCollectionImpl(tx.Load(cp.usedIn).(bagImpl).toSlice(tx))
+    return NewImmutableCollectionImpl(tx.Load(cp.usedIn).(bag).toSlice(tx))
 }
 func (cp *compositePartImpl) ClearPointers(tx Transaction) {
     tx.Store(cp.documentation, nil)

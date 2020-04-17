@@ -3,6 +3,10 @@ package gvstm
 import "gvstm/stmbench7/interfaces"
 
 var (
+    GVSTMInitialiser = interfaces.SynchMethodInitialiser{
+        DOFactory: doFactory,
+        BEFactory: beFactory,
+    }
     doFactory = interfaces.DesignObjFactory{
         CreateAtomicPart:      newAtomicPartImpl,
         CreateConnection:      interfaces.NewConnectionImpl,
@@ -19,7 +23,3 @@ var (
         CreateIDPool:   newIDPoolImpl,
     }
 )
-
-func SetGVSTMFactories() {
-    interfaces.SetFactories(doFactory, beFactory)
-}

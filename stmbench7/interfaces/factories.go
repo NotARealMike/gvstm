@@ -2,6 +2,23 @@ package interfaces
 
 import . "gvstm/stm"
 
+var (
+    DOFactory DesignObjFactory
+    BEFactory BackendFactory
+)
+
+func SetFactories(initialiser SynchMethodInitialiser) {
+    DOFactory = initialiser.DOFactory
+    BEFactory = initialiser.BEFactory
+}
+
+type SynchMethodInitialiser struct {
+    DOFactory DesignObjFactory
+    BEFactory BackendFactory
+    // TODO
+    // CreateOperationExecutorFactory() OperationExecutorFactory
+}
+
 // A factory for creating the benchmark data structures.
 // STM implementations should populate an instance with their respective factory methods.
 type DesignObjFactory struct {
@@ -20,14 +37,4 @@ type BackendFactory struct {
     CreateLargeSet func(tx Transaction) LargeSet
     CreateIndex func(tx Transaction) Index
     CreateIDPool func(tx Transaction, maxNumberOfIDs int) IDPool
-}
-
-var (
-    doFactory DesignObjFactory
-    beFactory BackendFactory
-)
-
-func SetFactories(designObjectFactory DesignObjFactory, backendFactory BackendFactory) {
-    doFactory = designObjectFactory
-    beFactory = backendFactory
 }
