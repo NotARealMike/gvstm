@@ -5,6 +5,7 @@ import (
     . "gvstm/stm"
     "gvstm/stmbench7/internal"
     "math/rand"
+    "os"
 )
 
 type Setup interface {
@@ -95,33 +96,33 @@ func NewSetup(tx Transaction) Setup {
 }
 
 func setUpDataStructure(tx Transaction, setup Setup) Module {
-    fmt.Println("Setting up the design library...")
+    fmt.Fprintln(os.Stderr, "Setting up the design library...")
     designLibrary := make([]CompositePart, internal.InitialTotalCompParts)
     compPartBuilder := setup.CompositePartBuilder()
     for i := 0; i < internal.InitialTotalCompParts; i++ {
-        fmt.Printf("Component %d of %d\n", i+1, internal.InitialTotalCompParts)
+        fmt.Fprintf(os.Stderr, "Component %d of %d\n", i+1, internal.InitialTotalCompParts)
         compPart, err := compPartBuilder.CreateAndRegisterCompositePart(tx)
         if err != nil {
             panic("Unexpected failure when creating composite part: " + err.Error())
         }
         designLibrary[i] = compPart
     }
-    fmt.Println()
+    fmt.Fprintln(os.Stderr)
 
-    fmt.Println("Setting up the module...")
+    fmt.Fprintln(os.Stderr, "Setting up the module...")
     module, err := setup.modBuilder().createAndRegisterModule(tx)
     if err != nil {
         panic("Unexpected failure when creating module: " + err.Error())
     }
     for i, baseAssembly := range setup.BaseAssemblyIDIndex().GetRange(tx, internal.MinAssDate, internal.MaxAssDate) {
-        fmt.Printf("Base assembly %d of %d\n", i+1, internal.InitialTotalBaseAssemblies)
+        fmt.Fprintf(os.Stderr,"Base assembly %d of %d\n", i+1, internal.InitialTotalBaseAssemblies)
         for i := 0; i < internal.NumCompPartPerAss; i++ {
             // TODO: Java version uses ThreadRandom.
             compositePartNumber := rand.Int()
             baseAssembly.(BaseAssembly).AddComponent(tx, designLibrary[compositePartNumber])
         }
     }
-    fmt.Println()
+    fmt.Fprintln(os.Stderr)
 
     return module
 }

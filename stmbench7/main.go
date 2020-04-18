@@ -2,13 +2,14 @@ package main
 
 import (
     "fmt"
+    "gvstm/stmbench7/impl/gvstm"
     "os"
     "time"
 )
 
 var (
     resultsDir = "/Users/ruicachopo/Desktop/stmbench7_results/"
-    dateFormat = "2006-01-02_15:04"
+    dateFormat = "2006-01-02 15:04"
 )
 
 func main() {
@@ -18,8 +19,21 @@ func main() {
         panic(err)
     }
     defer resultsFile.Close()
-    resultsFile.WriteString("Running STMBench7 at " + t0.Format(dateFormat) + "\n")
-    createBenchmark(nil, false)
-    tEnd := time.Now()
-    fmt.Println("Total time elapsed: " + tEnd.Sub(t0).String())
+    os.Stdout = resultsFile
+
+    params := &benchmarkParams{
+        initialiser: gvstm.GVSTMInitialiser,
+        reexecution: false,
+        gvstm:       true,
+    }
+
+    fmt.Fprintln(os.Stderr, header())
+
+    benchmark := createBenchmark(params)
+    benchmark.createInitialClone()
+    benchmark.start()
+    benchmark.checkInvariants(false)
+    benchmark.checkOpacity()
+    benchmark.showTTCHistograms()
+    benchmark.showStats()
 }
