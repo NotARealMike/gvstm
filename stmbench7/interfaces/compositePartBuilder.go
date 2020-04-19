@@ -99,7 +99,7 @@ func (cpb *compositePartBuilderImpl) createConnections(tx Transaction, parts []A
     for i := 0; i < internal.NumAtomsPerCompPart; i++ {
         dest := (i + 1) % internal.NumAtomsPerCompPart
         // TODO: The java version uses ThreadRandom and a parameter for the RNG.
-        parts[i].ConnectTo(tx, parts[dest], createType(), rand.Intn(internal.XYRange))
+        parts[i].ConnectTo(tx, parts[dest], createType(), rand.Intn(internal.XYRange)+1)
     }
 
     // Then add other connections randomly, taking into account
@@ -110,7 +110,7 @@ func (cpb *compositePartBuilderImpl) createConnections(tx Transaction, parts []A
         for part.GetNumToConnections(tx) < internal.NumConnectionsPerAtomicPart {
             // TODO: The java version uses ThreadRandom and a parameter for the RNG.
             dest := rand.Intn(internal.NumAtomsPerCompPart)
-            parts[i].ConnectTo(tx, parts[dest], createType(), rand.Intn(internal.XYRange))
+            parts[i].ConnectTo(tx, parts[dest], createType(), rand.Intn(internal.XYRange)+1)
         }
     }
 }

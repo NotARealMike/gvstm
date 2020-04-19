@@ -60,7 +60,7 @@ func (m *manualImpl) CheckFirstLastCharTheSame(tx Transaction) int {
 }
 
 func (m *manualImpl) StartsWith(tx Transaction, ch rune) bool {
-    return strings.HasSuffix(m.text, string(ch))
+    return strings.HasPrefix(m.text, string(ch))
 }
 
 func (m *manualImpl) ReplaceChar(tx Transaction, from rune, to rune) int {

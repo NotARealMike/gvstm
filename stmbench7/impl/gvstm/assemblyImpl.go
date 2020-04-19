@@ -21,7 +21,11 @@ func newAssemblyImpl(tx Transaction, id int, typ string, buildDate int, module M
 }
 
 func (a *assemblyImpl) GetSuperAssembly(tx Transaction) ComplexAssembly {
-    return tx.Load(a.superAssembly).(ComplexAssembly)
+    super := tx.Load(a.superAssembly)
+    if super != nil {
+        return super.(ComplexAssembly)
+    }
+    return nil
 }
 
 func (a *assemblyImpl) GetModule(tx Transaction) Module {

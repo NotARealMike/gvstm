@@ -4,6 +4,7 @@ import (
     "fmt"
     "gvstm/gvstm"
     "gvstm/stm"
+    "gvstm/stmbench7/correctness"
     "gvstm/stmbench7/interfaces"
     "os"
 )
@@ -55,7 +56,7 @@ func (b *benchmarkImpl) start() {}
 
 func (b *benchmarkImpl) generateOperationCDF() {}
 
-func (b *benchmarkImpl) checkInvariants(initial bool) error {
+func (b *benchmarkImpl) checkInvariants(initial bool) (err error) {
     if initial {
         fmt.Fprintln(os.Stdout, "Checking invariants (initial data structure): ")
         fmt.Fprintln(os.Stderr, "Checking invariants (initial data structure): ")
@@ -64,8 +65,18 @@ func (b *benchmarkImpl) checkInvariants(initial bool) error {
         fmt.Fprintln(os.Stdout, "Checking invariants (final data structure): ")
         fmt.Fprintln(os.Stderr, "Checking invariants (final data structure): ")
     }
-    // TODO: call the invariant checks here
-    return nil
+    if b.params.gvstm {
+        gvstm.Atomic(func(tx stm.Transaction) {
+            err = correctness.CheckInvariants(tx, b.setup, initial)
+        })
+    } else {
+        err = correctness.CheckInvariants(nil, b.setup, initial)
+    }
+    if err == nil {
+        fmt.Fprintln(os.Stderr, "Invariant check completed successfully!")
+        fmt.Fprintln(os.Stdout, "Invariant check completed successfully!")
+    }
+    return
 }
 
 func (b *benchmarkImpl) checkOpacity() error {

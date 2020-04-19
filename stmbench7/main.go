@@ -32,7 +32,9 @@ func main() {
     benchmark := createBenchmark(params)
     benchmark.createInitialClone()
     benchmark.start()
-    benchmark.checkInvariants(false)
+    if err := benchmark.checkInvariants(false); err != nil {
+        fmt.Fprintln(os.Stderr, err)
+    }
     benchmark.checkOpacity()
     benchmark.showTTCHistograms()
     benchmark.showStats()
