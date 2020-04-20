@@ -1,123 +1,139 @@
 package operations
 
-import . "gvstm/stmbench7/interfaces"
+import (
+    . "gvstm/stm"
+    . "gvstm/stmbench7/interfaces"
+)
 
 type Operation interface {
     ID() OperationID
-    Perform() (int, error)
+    Perform(tx Transaction) (int, error)
+}
+
+type operationImpl struct {
+    id OperationID
+    f func(tx Transaction) (int, error)
+}
+
+func (o *operationImpl) ID() OperationID {
+    return o.id
+}
+
+func (o *operationImpl) Perform(tx Transaction) (int, error) {
+    return o.f(tx)
 }
 
 type OperationType struct {
-    count int
-    probability float64
-    successfulOperations, failedOperations, maxttc int
+    Count                                          int
+    Probability                                    float64
+    SuccessfulOperations, FailedOperations, Maxttc int
 }
 
 var (
     TraversalRW = OperationType{
-        count:                0,
-        probability:          0,
-        successfulOperations: 0,
-        failedOperations:     0,
-        maxttc:               0,
+        Count:                0,
+        Probability:          0,
+        SuccessfulOperations: 0,
+        FailedOperations:     0,
+        Maxttc:               0,
     }
     TraversalRO = OperationType{
-        count:                0,
-        probability:          0,
-        successfulOperations: 0,
-        failedOperations:     0,
-        maxttc:               0,
+        Count:                0,
+        Probability:          0,
+        SuccessfulOperations: 0,
+        FailedOperations:     0,
+        Maxttc:               0,
     }
     ShortTraversalRW = OperationType{
-        count:                0,
-        probability:          0,
-        successfulOperations: 0,
-        failedOperations:     0,
-        maxttc:               0,
+        Count:                0,
+        Probability:          0,
+        SuccessfulOperations: 0,
+        FailedOperations:     0,
+        Maxttc:               0,
     }
     ShortTraversalRO = OperationType{
-        count:                0,
-        probability:          0,
-        successfulOperations: 0,
-        failedOperations:     0,
-        maxttc:               0,
+        Count:                0,
+        Probability:          0,
+        SuccessfulOperations: 0,
+        FailedOperations:     0,
+        Maxttc:               0,
     }
     OperationRW = OperationType{
-        count:                0,
-        probability:          0,
-        successfulOperations: 0,
-        failedOperations:     0,
-        maxttc:               0,
+        Count:                0,
+        Probability:          0,
+        SuccessfulOperations: 0,
+        FailedOperations:     0,
+        Maxttc:               0,
     }
     OperationRO = OperationType{
-        count:                0,
-        probability:          0,
-        successfulOperations: 0,
-        failedOperations:     0,
-        maxttc:               0,
+        Count:                0,
+        Probability:          0,
+        SuccessfulOperations: 0,
+        FailedOperations:     0,
+        Maxttc:               0,
     }
     StructureModification = OperationType{
-        count:                0,
-        probability:          0,
-        successfulOperations: 0,
-        failedOperations:     0,
-        maxttc:               0,
+        Count:                0,
+        Probability:          0,
+        SuccessfulOperations: 0,
+        FailedOperations:     0,
+        Maxttc:               0,
     }
 )
 
 type OperationID struct {
-    typ OperationType
-    creator func(setup Setup) Operation
+    OpType OperationType
+    CreateOperation func(setup Setup) Operation
 }
 
 var (
-    T1 OperationID = OperationID{TraversalRO, createTraversal1}
-    T2a OperationID = OperationID{TraversalRW, createTraversal2a}
-    T2b OperationID = OperationID{TraversalRW, createTraversal2b}
-    T2c OperationID = OperationID{TraversalRW, createTraversal2c}
-    T3a OperationID = OperationID{TraversalRW, createTraversal3a}
-    T3b OperationID = OperationID{TraversalRW, createTraversal3b}
-    T3c OperationID = OperationID{TraversalRW, createTraversal3c}
-    T4 OperationID = OperationID{TraversalRO, createTraversal4}
-    T5 OperationID = OperationID{TraversalRW, createTraversal5}
-    T6 OperationID = OperationID{TraversalRO, createTraversal6}
-    Q6 OperationID = OperationID{TraversalRO, createTraversalQ6}
-    Q7 OperationID = OperationID{TraversalRO, createTraversalQ7}
+    T1  = OperationID{TraversalRO, createTraversal1}
+    T2a = OperationID{TraversalRW, createTraversal2a}
+    T2b = OperationID{TraversalRW, createTraversal2b}
+    T2c = OperationID{TraversalRW, createTraversal2c}
+    T3a = OperationID{TraversalRW, createTraversal3a}
+    T3b = OperationID{TraversalRW, createTraversal3b}
+    T3c = OperationID{TraversalRW, createTraversal3c}
+    T4  = OperationID{TraversalRO, createTraversal4}
+    T5  = OperationID{TraversalRW, createTraversal5}
+    T6  = OperationID{TraversalRO, createTraversal6}
+    Q6  = OperationID{TraversalRO, createTraversalQ6}
+    Q7  = OperationID{TraversalRO, createTraversalQ7}
 
-    ST1 OperationID = OperationID{ShortTraversalRO, createShortTraversal1}
-    ST2 OperationID = OperationID{ShortTraversalRO, createShortTraversal2}
-    ST3 OperationID = OperationID{ShortTraversalRO, createShortTraversal3}
-    ST4 OperationID = OperationID{ShortTraversalRO, createShortTraversal4}
-    ST5 OperationID = OperationID{ShortTraversalRO, createShortTraversal5}
-    ST6 OperationID = OperationID{ShortTraversalRW, createShortTraversal6}
-    ST7 OperationID = OperationID{ShortTraversalRW, createShortTraversal7}
-    ST8 OperationID = OperationID{ShortTraversalRW, createShortTraversal8}
-    ST9 OperationID = OperationID{ShortTraversalRO, createShortTraversal9}
-    ST10 OperationID = OperationID{ShortTraversalRW, createShortTraversal10}
+    ST1  = OperationID{ShortTraversalRO, createShortTraversal1}
+    ST2  = OperationID{ShortTraversalRO, createShortTraversal2}
+    ST3  = OperationID{ShortTraversalRO, createShortTraversal3}
+    ST4  = OperationID{ShortTraversalRO, createShortTraversal4}
+    ST5  = OperationID{ShortTraversalRO, createShortTraversal5}
+    ST6  = OperationID{ShortTraversalRW, createShortTraversal6}
+    ST7  = OperationID{ShortTraversalRW, createShortTraversal7}
+    ST8  = OperationID{ShortTraversalRW, createShortTraversal8}
+    ST9  = OperationID{ShortTraversalRO, createShortTraversal9}
+    ST10 = OperationID{ShortTraversalRW, createShortTraversal10}
 
-    OP1 OperationID = OperationID{OperationRO, createOperation1}
-    OP2 OperationID = OperationID{OperationRO, createOperation2}
-    OP3 OperationID = OperationID{OperationRO, createOperation3}
-    OP4 OperationID = OperationID{OperationRO, createOperation4}
-    OP5 OperationID = OperationID{OperationRO, createOperation5}
-    OP6 OperationID = OperationID{OperationRO, createOperation6}
-    OP7 OperationID = OperationID{OperationRO, createOperation7}
-    OP8 OperationID = OperationID{OperationRO, createOperation8}
-    OP9 OperationID = OperationID{OperationRW, createOperation9}
-    OP10 OperationID = OperationID{OperationRW, createOperation10}
-    OP11 OperationID = OperationID{OperationRW, createOperation11}
-    OP12 OperationID = OperationID{OperationRW, createOperation12}
-    OP13 OperationID = OperationID{OperationRW, createOperation13}
-    OP14 OperationID = OperationID{OperationRW, createOperation14}
-    OP15 OperationID = OperationID{OperationRW, createOperation15}
+    OP1  = OperationID{OperationRO, createOperation1}
+    OP2  = OperationID{OperationRO, createOperation2}
+    OP3  = OperationID{OperationRO, createOperation3}
+    OP4  = OperationID{OperationRO, createOperation4}
+    OP5  = OperationID{OperationRO, createOperation5}
+    OP6  = OperationID{OperationRO, createOperation6}
+    OP7  = OperationID{OperationRO, createOperation7}
+    OP8  = OperationID{OperationRO, createOperation8}
+    OP9  = OperationID{OperationRW, createOperation9}
+    OP10 = OperationID{OperationRW, createOperation10}
+    OP11 = OperationID{OperationRW, createOperation11}
+    OP12 = OperationID{OperationRW, createOperation12}
+    OP13 = OperationID{OperationRW, createOperation13}
+    OP14 = OperationID{OperationRW, createOperation14}
+    OP15 = OperationID{OperationRW, createOperation15}
 
-    SM1 OperationID = OperationID{StructureModification, createStructureModification1}
-    SM2 OperationID = OperationID{StructureModification, createStructureModification2}
-    SM3 OperationID = OperationID{StructureModification, createStructureModification3}
-    SM4 OperationID = OperationID{StructureModification, createStructureModification4}
-    SM5 OperationID = OperationID{StructureModification, createStructureModification5}
-    SM6 OperationID = OperationID{StructureModification, createStructureModification6}
-    SM7 OperationID = OperationID{StructureModification, createStructureModification7}
-    SM8 OperationID = OperationID{StructureModification, createStructureModification8}
+    SM1 = OperationID{StructureModification, createStructureModification1}
+    SM2 = OperationID{StructureModification, createStructureModification2}
+    SM3 = OperationID{StructureModification, createStructureModification3}
+    SM4 = OperationID{StructureModification, createStructureModification4}
+    SM5 = OperationID{StructureModification, createStructureModification5}
+    SM6 = OperationID{StructureModification, createStructureModification6}
+    SM7 = OperationID{StructureModification, createStructureModification7}
+    SM8 = OperationID{StructureModification, createStructureModification8}
 )
 
