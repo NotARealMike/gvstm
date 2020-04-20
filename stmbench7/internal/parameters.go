@@ -13,6 +13,15 @@ var (
     NumCompPartPerAss = 3
     NumModules = 1
 
+    InitialTotalCompParts = NumModules * NumCompPartsPerModule
+    InitialTotalBaseAssemblies = int(math.Pow(float64(NumSubAssemblies), float64(NumAssemblyLevels-1)))
+    InitialTotalComplexAssemblies = (1 - InitialTotalBaseAssemblies) / (1 - NumSubAssemblies)
+
+    MaxCompParts = int(1.05 * float64(InitialTotalCompParts))
+    MaxAtomicParts = MaxCompParts * NumAtomsPerCompPart
+    MaxBaseAssemblies = int(1.05 * float64(InitialTotalBaseAssemblies))
+    MaxComplexAssemblies = int(1.05 * float64(InitialTotalComplexAssemblies))
+
     MinModuleDate = 1000
     MaxModuleDate = 1999
     MinAssDate = 1000
@@ -27,12 +36,13 @@ var (
     NumTypes = 10
     XYRange = 100000
 
-    InitialTotalCompParts = NumModules * NumCompPartsPerModule
-    InitialTotalBaseAssemblies = int(math.Pow(float64(NumSubAssemblies), float64(NumAssemblyLevels-1)))
-    InitialTotalComplexAssemblies = (1 - InitialTotalBaseAssemblies) / (1 - NumSubAssemblies)
+    TraversalsRatio = 5
+    ShortTraversalsRatio = 40
+    OperationsRatio = 45
+    StructuralModificationsRatio = 10
 
-    MaxCompParts = int(1.05 * float64(InitialTotalCompParts))
-    MaxAtomicParts = MaxCompParts * NumAtomsPerCompPart
-    MaxBaseAssemblies = int(1.05 * float64(InitialTotalBaseAssemblies))
-    MaxComplexAssemblies = int(1.05 * float64(InitialTotalComplexAssemblies))
+    ReadOnlyWorkloadRORatio = 100
+    ReadDominatedWorkloadRORatio = 90
+    ReadWriteWorkloadRORatio = 60
+    WriteDominatedWorkloadRORatio = 10
 )

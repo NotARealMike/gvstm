@@ -27,66 +27,86 @@ type OperationType struct {
     Count                                          int
     Probability                                    float64
     SuccessfulOperations, FailedOperations, Maxttc int
+    Name                                           string
 }
 
 var (
-    TraversalRW = OperationType{
+    TraversalRW = &OperationType{
         Count:                0,
         Probability:          0,
         SuccessfulOperations: 0,
         FailedOperations:     0,
         Maxttc:               0,
+        Name:                 "TraversalRW",
     }
-    TraversalRO = OperationType{
+    TraversalRO = &OperationType{
         Count:                0,
         Probability:          0,
         SuccessfulOperations: 0,
         FailedOperations:     0,
         Maxttc:               0,
+        Name:                 "TraversalRO",
     }
-    ShortTraversalRW = OperationType{
+    ShortTraversalRW = &OperationType{
         Count:                0,
         Probability:          0,
         SuccessfulOperations: 0,
         FailedOperations:     0,
         Maxttc:               0,
+        Name:                 "ShortTraversalRW",
     }
-    ShortTraversalRO = OperationType{
+    ShortTraversalRO = &OperationType{
         Count:                0,
         Probability:          0,
         SuccessfulOperations: 0,
         FailedOperations:     0,
         Maxttc:               0,
+        Name:                 "ShortTraversalRO",
     }
-    OperationRW = OperationType{
+    OperationRW = &OperationType{
         Count:                0,
         Probability:          0,
         SuccessfulOperations: 0,
         FailedOperations:     0,
         Maxttc:               0,
+        Name:                 "OperationRW",
     }
-    OperationRO = OperationType{
+    OperationRO = &OperationType{
         Count:                0,
         Probability:          0,
         SuccessfulOperations: 0,
         FailedOperations:     0,
         Maxttc:               0,
+        Name:                 "OperationRO",
     }
-    StructureModification = OperationType{
+    StructureModification = &OperationType{
         Count:                0,
         Probability:          0,
         SuccessfulOperations: 0,
         FailedOperations:     0,
         Maxttc:               0,
+        Name:                 "StructureModification",
     }
 )
 
-type OperationID struct {
-    OpType OperationType
-    CreateOperation func(setup Setup) Operation
+var OperationTypes = []*OperationType{
+    TraversalRW, TraversalRO, ShortTraversalRW, ShortTraversalRO, OperationRW, OperationRO, StructureModification,
 }
 
+type OperationID struct {
+    OpType *OperationType
+    CreateOperation func(setup Setup) Operation
+}
 var (
+    T1, T2a, T2b, T2c, T3a, T3b, T3c, T4, T5, T6, Q6, Q7,
+    ST1, ST2, ST3, ST4, ST5, ST6, ST7, ST8, ST9, ST10,
+    OP1, OP2, OP3, OP4, OP5, OP6, OP7, OP8, OP9, OP10, OP11, OP12, OP13, OP14, OP15,
+    SM1, SM2, SM3, SM4, SM5, SM6, SM7, SM8 OperationID
+)
+
+var OperationIDs []OperationID
+
+func init() {
     T1  = OperationID{TraversalRO, createTraversal1}
     T2a = OperationID{TraversalRW, createTraversal2a}
     T2b = OperationID{TraversalRW, createTraversal2b}
@@ -135,5 +155,11 @@ var (
     SM6 = OperationID{StructureModification, createStructureModification6}
     SM7 = OperationID{StructureModification, createStructureModification7}
     SM8 = OperationID{StructureModification, createStructureModification8}
-)
 
+    OperationIDs = []OperationID{
+        T1, T2a, T2b, T2c, T3a, T3b, T3c, T4, T5, T6, Q6, Q7,
+        ST1, ST2, ST3, ST4, ST5, ST6, ST7, ST8, ST9, ST10,
+        OP1, OP2, OP3, OP4, OP5, OP6, OP7, OP8, OP9, OP10, OP11, OP12, OP13, OP14, OP15,
+        SM1, SM2, SM3, SM4, SM5, SM6, SM7, SM8,
+    }
+}

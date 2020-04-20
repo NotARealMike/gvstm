@@ -3,6 +3,7 @@ package main
 import (
     "fmt"
     "gvstm/stmbench7/impl/gvstm"
+    "gvstm/stmbench7/internal"
     "os"
     "time"
 )
@@ -22,12 +23,16 @@ func main() {
     os.Stdout = resultsFile
 
     params := &benchmarkParams{
-        initialiser: gvstm.GVSTMInitialiser,
-        reexecution: false,
-        gvstm:       true,
+        initialiser:                    gvstm.GVSTMInitialiser,
+        reexecution:                    false,
+        gvstm:                          true,
+        numThreads:                     4,
+        duration:                       10 * time.Second,
+        readOnlyRatio:                  internal.ReadDominatedWorkloadRORatio,
+        traversalsEnabled:              true,
+        structureModificationsEnabled:  true,
+        longReadWriteTraversalsEnabled: true,
     }
-
-    fmt.Fprintln(os.Stderr, header())
 
     benchmark := createBenchmark(params)
     benchmark.createInitialClone()
