@@ -2,9 +2,15 @@ package main
 
 import (
     "fmt"
+    "os"
     "strconv"
     "strings"
 )
+
+func printOutAndErr(s string) {
+    fmt.Fprint(os.Stdout, s)
+    fmt.Fprint(os.Stderr, s)
+}
 
 func header() string {
     return section("Unreleased version, there is no header.")
@@ -12,10 +18,16 @@ func header() string {
 
 func runtimeParamsInfo(params *benchmarkParams) string {
     var b strings.Builder
-    b.WriteString("Benchmark Parameters:\n" +
-        fmt.Sprintf("  GVSTM: %t\n", params.gvstm) +
-        fmt.Sprintf("  Reexecution: %t\n", params.reexecution),
-    )
+    b.WriteString(section("Benchmark parameters"))
+
+    b.WriteString(fmt.Sprintf("Number of threads: %d\n", params.numThreads))
+    b.WriteString(fmt.Sprintf("Length: %s\n", params.duration.String()))
+    b.WriteString(fmt.Sprintf("Read percentage: %d\n", params.readOnlyRatio))
+    b.WriteString(fmt.Sprintf("Synchronisation method: %s\n", params.syncType))
+    b.WriteString(fmt.Sprintf("Long traversals enabled: %t\n", params.traversalsEnabled))
+    b.WriteString(fmt.Sprintf("Long read-write traversals enabled: %t\n", params.longReadWriteTraversalsEnabled))
+    b.WriteString(fmt.Sprintf("Structure modification enabled: %t\n\n", params.structureModificationsEnabled))
+
     return b.String()
 }
 
@@ -25,9 +37,10 @@ func syntax() string {
 
 func section(title string) string {
     var b strings.Builder
+    b.WriteString("\n")
     b.WriteString(line('-') + "\n")
     b.WriteString(title + "\n")
-    b.WriteString(line('-') + "\n")
+    b.WriteString(line('-') + "\n\n")
     return b.String()
 }
 

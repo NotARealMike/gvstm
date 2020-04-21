@@ -34,7 +34,6 @@ func CheckInvariants(tx Transaction, setup Setup, initial bool) error {
         return err
     }
     fmt.Fprintln(os.Stderr, "Invariants ok.")
-    fmt.Fprintln(os.Stdout, "Invariants ok.")
     return nil
 }
 

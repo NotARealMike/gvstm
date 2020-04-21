@@ -15,8 +15,6 @@ func SetFactories(initialiser SynchMethodInitialiser) {
 type SynchMethodInitialiser struct {
     DOFactory DesignObjFactory
     BEFactory BackendFactory
-    // TODO
-    // CreateOperationExecutorFactory() OperationExecutorFactory
 }
 
 // A factory for creating the benchmark data structures.

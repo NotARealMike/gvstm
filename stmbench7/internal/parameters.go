@@ -45,4 +45,8 @@ var (
     ReadDominatedWorkloadRORatio = 90
     ReadWriteWorkloadRORatio = 60
     WriteDominatedWorkloadRORatio = 10
+
+    MaxLowTTC = 999
+    HighTTCEntries = 200
+    HighTTCLogBase = 1.03
 )
