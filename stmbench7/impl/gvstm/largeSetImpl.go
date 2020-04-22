@@ -36,16 +36,12 @@ func (s *largeSetImpl) Remove(tx Transaction, element interface{}) bool {
     }
     oldSet := tx.Load(s.set).([]interface{})
     newSet := make([]interface{}, len(oldSet)-1)
-    found := false
-    for i := range oldSet {
+    offset := 0
+    for i := range newSet {
         if oldSet[i] == element {
-            found = true
+            offset = 1
         }
-        if !found {
-            newSet[i] = oldSet[i]
-        } else {
-            newSet[i] = oldSet[i+1]
-        }
+        newSet[i] = oldSet[i+offset]
     }
     tx.Store(s.set, newSet)
     return true
