@@ -26,15 +26,15 @@ func newComplexAssemblyImpl(tx Transaction, id int, typ string, buildDate int, m
 
 func (ca *complexAssemblyImpl) AddSubAssembly(tx Transaction, assembly Assembly) bool {
     // TODO: attempting to add a base assembly to a complex assembly whose level != 2 should panic.
-    return ca.subAssemblies.add(tx, assembly)
+    return ca.subAssemblies.Add(tx, assembly)
 }
 
 func (ca *complexAssemblyImpl) RemoveSubAssembly(tx Transaction, assembly Assembly) bool {
-    return ca.subAssemblies.remove(tx, assembly)
+    return ca.subAssemblies.Remove(tx, assembly)
 }
 
 func (ca *complexAssemblyImpl) GetSubAssemblies(tx Transaction) ImmutableCollection {
-    return NewImmutableCollectionImpl(ca.subAssemblies.toSlice(tx))
+    return NewImmutableCollectionImpl(ca.subAssemblies.ToSlice(tx))
 }
 
 func (ca *complexAssemblyImpl) GetLevel(tx Transaction) int {

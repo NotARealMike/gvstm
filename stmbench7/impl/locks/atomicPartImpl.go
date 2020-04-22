@@ -25,12 +25,12 @@ func newAtomicPartImpl(tx Transaction, id int, typ string, buildDate int, x, y i
 
 func (ap *atomicPartImpl) ConnectTo(tx Transaction, destination AtomicPart, typ string, length int) {
     connection := NewConnectionImpl(ap, destination, typ, length)
-    ap.to.add(tx, connection)
+    ap.to.Add(tx, connection)
     destination.AddConnectionFromOtherPart(tx, connection.GetReversed())
 }
 
 func (ap *atomicPartImpl) AddConnectionFromOtherPart(tx Transaction, connection Connection) {
-    ap.from.add(tx, connection)
+    ap.from.Add(tx, connection)
 }
 
 func (ap *atomicPartImpl) SetCompositePart(tx Transaction, partOf CompositePart) {
@@ -38,16 +38,16 @@ func (ap *atomicPartImpl) SetCompositePart(tx Transaction, partOf CompositePart)
 }
 
 func (ap *atomicPartImpl) GetNumToConnections(tx Transaction) int {
-    return ap.to.size(tx)
+    return ap.to.Size(tx)
 }
 
 func (ap *atomicPartImpl) GetToConnections(tx Transaction) ImmutableCollection {
-    return NewImmutableCollectionImpl(ap.to.toSlice(tx))
+    return NewImmutableCollectionImpl(ap.to.ToSlice(tx))
 }
 
 
 func (ap *atomicPartImpl) GetFromConnections(tx Transaction) ImmutableCollection {
-    return NewImmutableCollectionImpl(ap.from.toSlice(tx))
+    return NewImmutableCollectionImpl(ap.from.ToSlice(tx))
 }
 
 func (ap *atomicPartImpl) GetPartOf(tx Transaction) CompositePart {
