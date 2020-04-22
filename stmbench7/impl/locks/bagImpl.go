@@ -35,7 +35,7 @@ func (b *bagImpl) remove(tx Transaction, element interface{}) bool {
     index := -1
     for i := range oldList {
         if oldList[i] == element {
-            index = 1
+            index = i
             break
         }
     }
@@ -43,12 +43,11 @@ func (b *bagImpl) remove(tx Transaction, element interface{}) bool {
         return false
     }
     newList := make([]interface{}, len(oldList)-1)
-    for i := range oldList {
-        if i < index {
-            newList[i] = oldList[i]
-        } else if i > index {
-            newList[i] = oldList[i+1]
-        }
+    for i := 0 ; i < index ; i++ {
+        newList[i] = oldList[i]
+    }
+    for i := index ; i < len(newList) ; i++ {
+        newList[i] = oldList[i+1]
     }
     b.list = newList
     return true
