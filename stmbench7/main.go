@@ -27,6 +27,7 @@ func main() {
     benchmark.start()
     if err := benchmark.checkInvariants(false); err != nil {
         fmt.Fprintln(os.Stderr, err)
+        return
     }
     benchmark.checkOpacity()
     benchmark.showTTCHistograms()

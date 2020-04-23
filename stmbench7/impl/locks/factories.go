@@ -3,7 +3,7 @@ package locks
 import "gvstm/stmbench7/interfaces"
 
 var (
-    LocksInitialiser = interfaces.SynchMethodInitialiser{
+    CGLocksInitialiser = interfaces.SynchMethodInitialiser{
         DOFactory: doFactory,
         BEFactory: beFactory,
     }
@@ -21,5 +21,19 @@ var (
         CreateLargeSet: newLargeSetImpl,
         CreateIndex:    newIndexImpl,
         CreateIDPool:   newIDPoolImpl,
+    }
+    MGLocksInitialiser = interfaces.SynchMethodInitialiser{
+        DOFactory: mgDOFactory,
+        BEFactory: beFactory,
+    }
+    mgDOFactory = interfaces.DesignObjFactory{
+        CreateAtomicPart:      newAtomicPartImpl,
+        CreateConnection:      interfaces.NewConnectionImpl,
+        CreateBaseAssembly:    newBaseAssemblyImpl,
+        CreateComplexAssembly: newMGComplexAssemblyImpl,
+        CreateCompositePart:   newCompositePartImpl,
+        CreateDocument:        newDocumentImpl,
+        CreateManual:          newManualImpl,
+        CreateModule:          newModuleImpl,
     }
 )
