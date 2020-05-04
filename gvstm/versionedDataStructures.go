@@ -31,6 +31,5 @@ func (vb *vBox) commit(seqNo uint64, body *vBody) {
 type vBody struct {
 	value interface{}
 	seqNo uint64
-	prev *vBody
+	prev  *vBody
 }
-

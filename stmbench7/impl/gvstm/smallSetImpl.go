@@ -1,20 +1,20 @@
 package gvstm
 
 import (
-    . "gvstm/stm"
-    "gvstm/stmbench7/interfaces"
+	. "gvstm/stm"
+	"gvstm/stmbench7/interfaces"
 )
 
 type smallSet interface {
-    interfaces.LargeSet
+	interfaces.LargeSet
 }
 
 type smallSetImpl struct {
-    interfaces.LargeSet
+	interfaces.LargeSet
 }
 
 func newSmallSetImpl(tx Transaction) smallSet {
-    return &smallSetImpl{
-        newLargeSetImpl(tx),
-    }
+	return &smallSetImpl{
+		newLargeSetImpl(tx),
+	}
 }

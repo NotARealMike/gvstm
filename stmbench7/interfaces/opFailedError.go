@@ -1,17 +1,17 @@
 package interfaces
 
 type OpFailedError interface {
-    error
+	error
 }
 
 type opFailedErrorImpl struct {
-    message string
+	message string
 }
 
 func NewOpFailedError(message string) OpFailedError {
-    return &opFailedErrorImpl{message: message}
+	return &opFailedErrorImpl{message: message}
 }
 
 func (e *opFailedErrorImpl) Error() string {
-    return e.message
+	return e.message
 }

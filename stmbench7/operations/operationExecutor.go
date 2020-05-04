@@ -1,11 +1,11 @@
 package operations
 
 type OperationExecutor interface {
-    Execute() (int, error)
+	Execute() (int, error)
 }
 
 type OperationExecutorFactory struct {
-    CreateExecutor func(operation Operation) OperationExecutor
+	CreateExecutor func(operation Operation) OperationExecutor
 }
 
 var OEFactory OperationExecutorFactory

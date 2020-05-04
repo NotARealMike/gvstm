@@ -12,8 +12,8 @@ var (
 
 type rWTransaction struct {
 	latestRecord *activeTxRecord
-	readSet map[*vBox]struct{}
-	writeSet map[*vBox]*vBody
+	readSet      map[*vBox]struct{}
+	writeSet     map[*vBox]*vBody
 }
 
 func newRWTransaction() *rWTransaction {
