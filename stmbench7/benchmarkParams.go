@@ -9,7 +9,6 @@ import (
 type benchmarkParams struct {
 	initialiser     interfaces.SynchMethodInitialiser
 	executorFactory operations.OperationExecutorFactory
-	reexecution     bool
 	gvstm           bool
 	syncType        string
 

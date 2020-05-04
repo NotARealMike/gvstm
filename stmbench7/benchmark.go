@@ -34,12 +34,10 @@ type benchmarkImpl struct {
 
 func createBenchmark(params *benchmarkParams) benchmark {
 	b := &benchmarkImpl{params: params}
-	if !b.params.reexecution {
-		interfaces.SetFactories(b.params.initialiser)
-		operations.OEFactory = params.executorFactory
-		fmt.Fprintln(os.Stderr, header())
-		printOutAndErr(runtimeParamsInfo(b.params))
-	}
+	interfaces.SetFactories(b.params.initialiser)
+	operations.OEFactory = params.executorFactory
+	fmt.Fprintln(os.Stderr, header())
+	printOutAndErr(runtimeParamsInfo(b.params))
 	b.generateOperationCDF()
 	b.setupStructures()
 	return b
@@ -120,13 +118,11 @@ func (b *benchmarkImpl) generateOperationCDF() {
 	operations.OperationRO.Probability = opRatio * readOnlyRatio / float64(operations.OperationRO.Count)
 	operations.StructureModification.Probability = smRatio * updateRatio / float64(operations.StructureModification.Count)
 
-	if !b.params.reexecution {
-		printOutAndErr("Operation ratios [%]:\n")
-		for _, opType := range operations.OperationTypes {
-			printOutAndErr(alignText(opType.Name, 23) + ": " + alignText(formatFloat(opType.Probability*float64(opType.Count)*100), 6) + "\n")
-		}
-		printOutAndErr("\n")
+	printOutAndErr("Operation ratios [%]:\n")
+	for _, opType := range operations.OperationTypes {
+		printOutAndErr(alignText(opType.Name, 23) + ": " + alignText(formatFloat(opType.Probability*float64(opType.Count)*100), 6) + "\n")
 	}
+	printOutAndErr("\n")
 
 	operationProbabilities := make([]float64, len(operations.OperationIDs))
 	for i := range operations.OperationIDs {
