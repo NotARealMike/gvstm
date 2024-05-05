@@ -1,8 +1,8 @@
 package operations
 
 import (
-	"gvstm/gvstm"
-	. "gvstm/stm"
+	"github.com/NotARealMike/gvstm/gvstm"
+	. "github.com/NotARealMike/gvstm/stm"
 )
 
 type gvstmOperationExecutor struct {

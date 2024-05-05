@@ -1,7 +1,7 @@
 package locks
 
 import (
-	. "gvstm/stm"
+	. "github.com/NotARealMike/gvstm/stm"
 )
 
 type bag interface {

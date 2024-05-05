@@ -1,6 +1,6 @@
 package interfaces
 
-import . "gvstm/stm"
+import . "github.com/NotARealMike/gvstm/stm"
 
 // Backend data structures used by the benchmark data structures.
 // An implementation of the benchmark must provide correctly synchronised

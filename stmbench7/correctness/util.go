@@ -2,9 +2,9 @@ package correctness
 
 import (
 	"fmt"
-	. "gvstm/stm"
-	"gvstm/stmbench7/interfaces"
-	"gvstm/stmbench7/internal"
+	. "github.com/NotARealMike/gvstm/stm"
+	"github.com/NotARealMike/gvstm/stmbench7/interfaces"
+	"github.com/NotARealMike/gvstm/stmbench7/internal"
 	"strconv"
 	"strings"
 )

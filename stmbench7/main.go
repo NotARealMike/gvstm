@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"gvstm/stmbench7/impl/gvstm"
-	"gvstm/stmbench7/impl/locks"
-	"gvstm/stmbench7/operations"
+	"github.com/NotARealMike/gvstm/stmbench7/impl/gvstm"
+	"github.com/NotARealMike/gvstm/stmbench7/impl/locks"
+	"github.com/NotARealMike/gvstm/stmbench7/operations"
 	"os"
 	"time"
 )
@@ -51,7 +51,7 @@ func main() {
 		params.initialiser = gvstm.GVSTMInitialiser
 		params.executorFactory = operations.OperationExecutorFactory{CreateExecutor: operations.CreateGVSTMOperationExecutor}
 		params.gvstm = true
-		params.syncType = "GVSTM"
+		params.syncType = "gvstm"
 	default:
 		panic("invalid synchronisation method: " + *syncType)
 	}

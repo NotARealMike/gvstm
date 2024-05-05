@@ -1,8 +1,8 @@
 package operations
 
 import (
-	. "gvstm/stm"
-	. "gvstm/stmbench7/interfaces"
+	. "github.com/NotARealMike/gvstm/stm"
+	. "github.com/NotARealMike/gvstm/stmbench7/interfaces"
 )
 
 type Operation interface {

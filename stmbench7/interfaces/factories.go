@@ -1,6 +1,6 @@
 package interfaces
 
-import . "gvstm/stm"
+import . "github.com/NotARealMike/gvstm/stm"
 
 var (
 	DOFactory DesignObjFactory

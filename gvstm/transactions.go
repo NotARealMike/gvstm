@@ -1,7 +1,7 @@
 package gvstm
 
 import (
-	"gvstm/stm"
+	"github.com/NotARealMike/gvstm/stm"
 	"sync"
 	"unsafe"
 )

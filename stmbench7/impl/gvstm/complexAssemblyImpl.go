@@ -1,10 +1,10 @@
 package gvstm
 
 import (
-	"gvstm/gvstm"
-	. "gvstm/stm"
-	. "gvstm/stmbench7/interfaces"
-	"gvstm/stmbench7/internal"
+	"github.com/NotARealMike/gvstm/gvstm"
+	. "github.com/NotARealMike/gvstm/stm"
+	. "github.com/NotARealMike/gvstm/stmbench7/interfaces"
+	"github.com/NotARealMike/gvstm/stmbench7/internal"
 )
 
 type complexAssemblyImpl struct {

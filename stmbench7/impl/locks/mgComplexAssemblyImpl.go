@@ -1,9 +1,9 @@
 package locks
 
 import (
-	. "gvstm/stm"
-	. "gvstm/stmbench7/interfaces"
-	"gvstm/stmbench7/operations"
+	. "github.com/NotARealMike/gvstm/stm"
+	. "github.com/NotARealMike/gvstm/stmbench7/interfaces"
+	"github.com/NotARealMike/gvstm/stmbench7/operations"
 )
 
 type mgComplexAssemblyImpl struct {

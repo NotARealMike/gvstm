@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"gvstm/gvstm"
-	"gvstm/stm"
-	"gvstm/stmbench7/correctness"
-	"gvstm/stmbench7/interfaces"
-	"gvstm/stmbench7/internal"
-	"gvstm/stmbench7/operations"
+	"github.com/NotARealMike/gvstm/gvstm"
+	"github.com/NotARealMike/gvstm/stm"
+	"github.com/NotARealMike/gvstm/stmbench7/correctness"
+	"github.com/NotARealMike/gvstm/stmbench7/interfaces"
+	"github.com/NotARealMike/gvstm/stmbench7/internal"
+	"github.com/NotARealMike/gvstm/stmbench7/operations"
 	"math"
 	"os"
 	"sync"

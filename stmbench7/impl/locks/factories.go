@@ -1,6 +1,6 @@
 package locks
 
-import "gvstm/stmbench7/interfaces"
+import "github.com/NotARealMike/gvstm/stmbench7/interfaces"
 
 var (
 	CGLocksInitialiser = interfaces.SynchMethodInitialiser{

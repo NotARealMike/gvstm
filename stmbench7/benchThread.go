@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	. "gvstm/stmbench7/interfaces"
-	"gvstm/stmbench7/internal"
-	"gvstm/stmbench7/operations"
+	. "github.com/NotARealMike/gvstm/stmbench7/interfaces"
+	"github.com/NotARealMike/gvstm/stmbench7/internal"
+	"github.com/NotARealMike/gvstm/stmbench7/operations"
 	"math"
 	"math/rand"
 	"os"
