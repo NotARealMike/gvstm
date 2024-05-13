@@ -1,0 +1,25 @@
+#+title: Software Transactional Memory in Go
+
+This repository currently holds three Go packages, each of which I plan to eventually publish as its own module. Each of the packages is summarised below.
+
+Note the absence of a license -- one will be added with the first released version of each package.
+
+For an explanation of the original design and implementation of all of these packages, see my [[https://github.com/NotARealMike/Dissertation][dissertation]].
+
+* stm
+
+My proposed interface for STMs in Go.
+
+The current version was designed in 2019, before Go had generics, and will be updated soon.
+
+* gvstm
+
+The Go Versioned Software Transactional Memory.
+
+This is an implementation of the `stm` interface using a Multi-Version Concurrency Control (MVCC) algorithm. It is based on an existing implementation of the algorithm in Java, available [[https://github.com/inesc-id-esw/jvstm][here]].
+
+* stmbench7
+
+An implementation of the [[https://dl.acm.org/doi/10.1145/1272998.1273029][STMBench7]] benchmark for Software Transactional Memory.
+
+This implementation is closely based on the existing Java implementation, and uses a lot of the same software design patterns.
