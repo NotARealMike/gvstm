@@ -16,7 +16,7 @@ var (
 
 func main() {
 
-	resultsDir := flag.String("outDir", "./", "output directory for benchmark results.")
+	resultsDir := flag.String("outDir", "./stmbench7/bench_results/", "output directory for benchmark results.")
 	syncType := flag.String("sync", "cg", "synchronisation method to be benchmarked. Can be cg, mg or gvstm.")
 	numThreads := flag.Int("threads", 4, "number of parallel threads.")
 	duration := flag.Duration("duration", 10*time.Second, "duration of benchmark run.")
